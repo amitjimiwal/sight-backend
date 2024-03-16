@@ -16,7 +16,8 @@
   },
   "include": ["src"], //the files to include in typescript
   "exclude": ["node_modules", "dist"], //the files to exclude from typescript
-  "ts-node": { //options for ts-node
+  "ts-node": {
+    //options for ts-node
     "esm": true //enable esm module support
   }
 }

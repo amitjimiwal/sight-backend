@@ -7,7 +7,9 @@
   "scripts": {
     "build": "tsc --build",
     "start": "node dist/server.js",
-    "dev": "nodemon ./src/server.ts"
+    "dev": "nodemon ./src/server.ts",
+    "format": "prettier --write .",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "electroo096",
@@ -19,7 +21,9 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.28",
+    "husky": "^9.0.11",
     "nodemon": "^3.1.0",
+    "prettier": "3.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   }
