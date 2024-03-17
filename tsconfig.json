@@ -14,7 +14,7 @@
     "moduleResolution": "NodeNext",
     "esModuleInterop": true //Allow default imports from modules with no default export
   },
-  "include": ["src"], //the files to include in typescript
+  "include": ["src", "prisma"], //the files to include in typescript
   "exclude": ["node_modules", "dist"], //the files to exclude from typescript
   "ts-node": {
     //options for ts-node

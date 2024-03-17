@@ -20,6 +20,7 @@ model User {
   name            String?
   isEmailVerified Boolean        @default(false)
   Otp             Otp?
+  otpExpiresAt    DateTime       
   Subscription    Subscription[]
   Result          Result[]
 }
