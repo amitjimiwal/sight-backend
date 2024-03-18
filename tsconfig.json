@@ -8,7 +8,7 @@
     "forceConsistentCasingInFileNames": true, //disallow inconsistently-cased references to the same file
     "strict": true, //enable all strict type-checking options
     "skipLibCheck": true, //skip type checking of all declaration files
-    "noImplicitAny": true, //avoid use of any types
+    // "noImplicitAny": true, //avoid use of any types
     "strictNullChecks": true, //avoid use of null types
     "allowSyntheticDefaultImports": true, //Allow 'import x from y' when a module doesn't have a default export.
     "moduleResolution": "NodeNext",
