@@ -25,7 +25,7 @@ app.get("/", (req: Request, res: Response) => {
 
 //handling unhandled routes
 app.all("*", (req, res, next) => {
-  res.json(new ApiResponse(`Can't find ${req.originalUrl} on this server!`, null, req.url, 404));
+  res.json(new ApiResponse(`Can't find ${req.method} Request  ${req.originalUrl}  on this server!`, null, req.url, 404));
 });
 
 app.use(errorHandler);
