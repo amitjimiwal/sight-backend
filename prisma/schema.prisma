@@ -17,10 +17,11 @@ model User {
   id              Int            @id @default(autoincrement())
   createdAt       DateTime       @default(now())
   email           String         @unique
-  name            String?
+  name            String
+  password        String
   isEmailVerified Boolean        @default(false)
-  Otp             Otp?
-  otpExpiresAt    DateTime       
+  isProUser       Boolean        @default(false)
+  Otp             Otp?  
   Subscription    Subscription[]
   Result          Result[]
 }
@@ -30,6 +31,7 @@ model Otp {
   otp    Int  @unique
   user   User @relation(fields: [userID], references: [id])
   userID Int  @unique
+  otpExpiresAt    DateTime     
 }
 
 model Subscription {

@@ -2,15 +2,20 @@
 import { Router } from "express";
 import { asyncHandler } from "../utils/apihandler.js";
 import { ApiError } from "../utils/Apierror.js";
-import { login } from "../controllers/auth.controller.js";
+import { login, logout, register, sendOtp, verifyUser } from "../controllers/auth.controller.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 export const authrouter = Router();
 
 authrouter.route("/").get(asyncHandler((req, res, next) => {
-  // res.status(200).json({
-  //   statusCode: 200,
-  //   status: "success",
-  //   message: `Auth service working properly!`,
-  // });
-  next(new ApiError(500, "ek or hai bkc"));
+  res.status(200).json(new ApiResponse("Auth service working fine", null, req.url, 200));
 }));
+
+authrouter.route("/register").post(asyncHandler(register));
+
 authrouter.route("/login").post(asyncHandler(login));
+
+authrouter.route("/logout").get(asyncHandler(logout));
+
+authrouter.route("/verify/:otp/:email").get(asyncHandler(verifyUser));
+
+authrouter.route("/resendotp/:email").get(asyncHandler(sendOtp));

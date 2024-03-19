@@ -1,16 +1,163 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils/Apierror.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-function login(req: Request<{}, {
+import { CreateUserDto, createuserdto } from '../dto/create-user.dto.js';
+import { comparepassword, generatehasspassword } from '../utils/functions/hashing.js';
+import prisma from '../db/dbconfig.js';
+import { SubscriptionType } from '@prisma/client';
+import { generateAuthToken } from '../utils/functions/generateToken.js';
+import { loginUser } from '../dto/login-user.dto.js';
+async function login(req: Request<{}, {
      email: string,
      password: string
 }>, res: Response, next: NextFunction) {
+     //check if user already exist in the DB
+     //if yes then send a cookie to the frontend and send a response
+     //if no then sent a error response to the frontend or by the api
+     await loginUser.parseAsync(req.body);
      const { email, password } = req.body;
-     if (!email || !password) {
-          next(new ApiError(400, 'Email and password are required'));
+     const userdata = await prisma.user.findUnique({
+          where: {
+               email,
+          }
+     });
+     if (!userdata) {
+          next(new ApiError(400, "User does not exist"));
+          return;
      }
-     // Do something
-     return res.json(new ApiResponse("Got data", { email, password }, "/login"));
+     if (!userdata?.isEmailVerified) {
+          next(new ApiError(400, "User is not verified"));
+          return;
+     }
+     const ispasswordmatch = await comparepassword(
+          password,
+          userdata.password,
+     );
+     if (!ispasswordmatch) {
+          next(new ApiError(400, "Entered Password is incorrect"));
+     }
+     const token = await generateAuthToken(userdata.id);
+     res.cookie("auth_token", token, {
+          httpOnly: true,
+     });
+     return res.json(new ApiResponse("Successfully User logged in", userdata, req.url, 200));
 }
 
-export { login };
+async function logout(req: Request, res: Response, next: NextFunction) { }
+async function register(req: Request<{}, createuserdto>, res: Response, next: NextFunction) {
+     await CreateUserDto.parseAsync(req.body);
+     const { email, name, password } = req.body;
+     const user = await prisma.user.findUnique({
+          where: {
+               email,
+          },
+     });
+     if (user) {
+          next(new ApiError(400, 'User already exists, please login or use another email address'));
+     }
+     //generate a otp and a otp expiry time
+     const otp = Math.floor(Math.random() * 900000) + 100000;
+     const otpExpires = new Date();
+     otpExpires.setMinutes(otpExpires.getMinutes() + 10);
+     //hashing the password
+     const hasspassword = await generatehasspassword(password);
+     //create a user
+     const newUser = await prisma.user.create({
+          data: {
+               email: email,
+               name: name,
+               password: hasspassword,
+               Otp: {
+                    create: {
+                         otp,
+                         otpExpiresAt: otpExpires,
+                    }
+               }
+          }
+     });
+     res.cookie("auth_token", generateAuthToken(newUser.id), {
+          httpOnly: true,
+     })
+     return res.json(new ApiResponse("User created. Check your Email for otp and verify Yourself", newUser, req.url, 201));
+}
+async function verifyUser(req: Request<{
+     email: string,
+     otp: string
+}>, res: Response, next: NextFunction) {
+     //check if user already exist in the DB
+     //if not then give error
+     //if otp not equaL then give error
+     //IF EXPIRY TIME IS LESS THEN CURRENT TIME THEN GIVE ERROR
+     //IF ALL GOOD THEN UPDATE THE USER AND SEND A RESPONSE
+     const { email, otp } = req.params;
+     if (!email || !otp) {
+          throw new Error('Email and OTP are required');
+     }
+     const user = await prisma.user.findUnique({
+          where: {
+               email: req.body.email,
+          },
+          include: {
+               Otp: true,
+          },
+     });
+     if (!user) {
+          throw new Error('There is no account associated with this Email');
+     }
+     if (user.Otp?.otp !== parseInt(otp)) {
+          throw new Error('OTP is incorrect');
+     }
+     if (user.Otp.otpExpiresAt < new Date()) {
+          throw new Error('OTP is Expired,Please resend the OTP');
+     }
+     await prisma.user.update({
+          where: {
+               email,
+          },
+          data: {
+               isEmailVerified: true,
+          },
+     });
+     return res.json(new ApiResponse('User Verified Successfully', user, req.url, 200));
+}
+
+async function sendOtp(req: Request<{
+     email: string
+}>, res: Response, next: NextFunction) {
+     //check if user already exist in the DB
+     //check if user is verified or not , if verified send a error that it is verified
+     //if not then generate a new otp and update the user and send a response
+     const { email } = req.params;
+     if (!email) {
+          throw new Error('Email is required');
+     }
+     const user = await prisma.user.findUnique({
+          where: {
+               email: req.body.email,
+          },
+          include: {
+               Otp: true,
+          },
+     });
+     if (!user) {
+          throw new Error('There is no account associated with this Email');
+     }
+     if (user.isEmailVerified) {
+          throw new Error('User is already verified,Please Login');
+     }
+     const otp = Math.floor(Math.random() * 900000) + 100000;
+     const otpExpires = new Date();
+     otpExpires.setMinutes(otpExpires.getMinutes() + 10);
+     await prisma.otp.update({
+          where: {
+               id: user.id
+          },
+          data: {
+               otp,
+               otpExpiresAt: otpExpires,
+          },
+     });
+     return res.json(new ApiResponse('OTP sent successfully', null, req.url, 200));
+}
+
+export { login, logout, register, verifyUser, sendOtp };
