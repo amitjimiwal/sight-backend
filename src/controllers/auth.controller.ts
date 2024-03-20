@@ -7,6 +7,7 @@ import prisma from '../db/dbconfig.js';
 import { SubscriptionType } from '@prisma/client';
 import { generateAuthToken } from '../utils/functions/generateToken.js';
 import { loginUser } from '../dto/login-user.dto.js';
+import { sendMail } from '../utils/functions/sendmaill.js';
 async function login(req: Request<{}, {
      email: string,
      password: string
@@ -19,6 +20,10 @@ async function login(req: Request<{}, {
      const userdata = await prisma.user.findUnique({
           where: {
                email,
+          },
+          include: {
+               Subscription: true,
+               Result: true,
           }
      });
      if (!userdata) {
@@ -75,6 +80,13 @@ async function register(req: Request<{}, createuserdto>, res: Response, next: Ne
                }
           }
      });
+     await sendMail({
+          name,
+          email,
+          subject: "Welcome to the Auth Service",
+          text: "Please verify your email by entering the otp",
+          otp: otp.toString(),
+     })
      res.cookie("auth_token", generateAuthToken(newUser.id), {
           httpOnly: true,
      })
@@ -95,7 +107,7 @@ async function verifyUser(req: Request<{
      }
      const user = await prisma.user.findUnique({
           where: {
-               email: req.body.email,
+               email: email,
           },
           include: {
                Otp: true,
@@ -110,7 +122,7 @@ async function verifyUser(req: Request<{
      if (user.Otp.otpExpiresAt < new Date()) {
           throw new Error('OTP is Expired,Please resend the OTP');
      }
-     await prisma.user.update({
+     const updatedData =await prisma.user.update({
           where: {
                email,
           },
@@ -118,7 +130,7 @@ async function verifyUser(req: Request<{
                isEmailVerified: true,
           },
      });
-     return res.json(new ApiResponse('User Verified Successfully', user, req.url, 200));
+     return res.json(new ApiResponse('User Verified Successfully', updatedData, req.url, 200));
 }
 
 async function sendOtp(req: Request<{
@@ -133,7 +145,7 @@ async function sendOtp(req: Request<{
      }
      const user = await prisma.user.findUnique({
           where: {
-               email: req.body.email,
+               email: email,
           },
           include: {
                Otp: true,
