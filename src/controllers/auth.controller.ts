@@ -4,11 +4,9 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { CreateUserDto, createuserdto } from '../dto/create-user.dto.js';
 import { comparepassword, generatehasspassword } from '../utils/functions/hashing.js';
 import prisma from '../db/dbconfig.js';
-import { SubscriptionType } from '@prisma/client';
 import { generateAuthToken } from '../utils/functions/generateToken.js';
 import { loginUser } from '../dto/login-user.dto.js';
 import { sendMail } from '../utils/functions/sendmaill.js';
-import { send } from 'process';
 async function login(req: Request<{}, {
      email: string,
      password: string
@@ -119,17 +117,20 @@ async function verifyUser(req: Request<{
      if (!user) {
           throw new Error('There is no account associated with this Email');
      }
+     if (user.isEmailVerified) {
+          throw new Error('User is already verified,Please continue to proceed with your account');
+     }
      if (user.Otp?.otp !== parseInt(otp)) {
           throw new Error('OTP is incorrect');
      }
-     if (user.Otp.otpExpiresAt < new Date()) {
+     if (user.Otp?.otpExpiresAt < new Date()) {
           throw new Error('OTP is Expired,Please resend the OTP');
      }
      await sendMail({
-          name:user.name,
+          name: user.name,
           email,
-          subject:"Account Verified Successfully",
-          type:'verify'
+          subject: "Account Verified Successfully",
+          type: 'verify'
      })
      const updatedData = await prisma.user.update({
           where: {
@@ -148,6 +149,7 @@ async function sendOtp(req: Request<{
      //check if user already exist in the DB
      //check if user is verified or not , if verified send a error that it is verified
      //if not then generate a new otp and update the user and send a response
+     console.log("Hhh");
      const { email } = req.params;
      if (!email) {
           throw new Error('Email is required');
@@ -160,6 +162,7 @@ async function sendOtp(req: Request<{
                Otp: true,
           },
      });
+     console.log(user);
      if (!user) {
           throw new Error('There is no account associated with this Email');
      }
@@ -169,9 +172,10 @@ async function sendOtp(req: Request<{
      const otp = Math.floor(Math.random() * 900000) + 100000;
      const otpExpires = new Date();
      otpExpires.setMinutes(otpExpires.getMinutes() + 10);
+
      await prisma.otp.update({
           where: {
-               id: user.id
+               userID: user.id
           },
           data: {
                otp,
@@ -179,12 +183,20 @@ async function sendOtp(req: Request<{
           },
      });
      await sendMail({
-          name:user.name,
+          name: user.name,
           email,
-          subject:"OTP for Verification",
-          type:'reset',
-          otp:otp.toString(),
+          subject: "OTP for Verification",
+          type: 'reset',
+          otp: otp.toString(),
      })
      return res.json(new ApiResponse('OTP sent successfully', null, req.url, 200));
 }
-export { login, register, verifyUser, sendOtp };
+async function logout(req: Request, res: Response, next: NextFunction) {
+     const cookie = req.cookies['auth_token'];
+     if (!cookie) {
+          next(new ApiError(400, 'User is not logged in'));
+     }
+     res.clearCookie('auth_token');
+     return res.json(new ApiResponse('User Logged out successfully', null, req.url, 200));
+}
+export { login, register, verifyUser, sendOtp, logout };
