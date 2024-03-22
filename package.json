@@ -8,8 +8,9 @@
     "build": "tsc --build",
     "start": "node dist/server.js",
     "dev": "nodemon ./src/server.ts",
-    "format": "prettier --write .",
-    "prepare": "husky"
+    "format": "prettier --write \"src/**/*.ts\" ",
+    "prepare": "husky",
+    "migrate": "npx prisma migrate dev --name"
   },
   "keywords": [],
   "author": "electroo096",

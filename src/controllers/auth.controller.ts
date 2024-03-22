@@ -8,6 +8,7 @@ import { SubscriptionType } from '@prisma/client';
 import { generateAuthToken } from '../utils/functions/generateToken.js';
 import { loginUser } from '../dto/login-user.dto.js';
 import { sendMail } from '../utils/functions/sendmaill.js';
+import { send } from 'process';
 async function login(req: Request<{}, {
      email: string,
      password: string
@@ -47,8 +48,6 @@ async function login(req: Request<{}, {
      });
      return res.json(new ApiResponse("Successfully User logged in", userdata, req.url, 200));
 }
-
-async function logout(req: Request, res: Response, next: NextFunction) { }
 async function register(req: Request<{}, createuserdto>, res: Response, next: NextFunction) {
      await CreateUserDto.parseAsync(req.body);
      const { email, name, password } = req.body;
@@ -78,19 +77,23 @@ async function register(req: Request<{}, createuserdto>, res: Response, next: Ne
                          otpExpiresAt: otpExpires,
                     }
                }
+          },
+          include: {
+               Subscription: true,
+               Result: true
           }
      });
      await sendMail({
           name,
           email,
           subject: "Welcome to the Auth Service",
-          text: "Please verify your email by entering the otp",
+          type: 'welcome',
           otp: otp.toString(),
      })
      res.cookie("auth_token", generateAuthToken(newUser.id), {
           httpOnly: true,
      })
-     return res.json(new ApiResponse("User created. Check your Email for otp and verify Yourself", newUser, req.url, 201));
+     return res.json(new ApiResponse("Your account is created. Check your Email for otp and verify Yourself", newUser, req.url, 201));
 }
 async function verifyUser(req: Request<{
      email: string,
@@ -122,7 +125,13 @@ async function verifyUser(req: Request<{
      if (user.Otp.otpExpiresAt < new Date()) {
           throw new Error('OTP is Expired,Please resend the OTP');
      }
-     const updatedData =await prisma.user.update({
+     await sendMail({
+          name:user.name,
+          email,
+          subject:"Account Verified Successfully",
+          type:'verify'
+     })
+     const updatedData = await prisma.user.update({
           where: {
                email,
           },
@@ -169,7 +178,13 @@ async function sendOtp(req: Request<{
                otpExpiresAt: otpExpires,
           },
      });
+     await sendMail({
+          name:user.name,
+          email,
+          subject:"OTP for Verification",
+          type:'reset',
+          otp:otp.toString(),
+     })
      return res.json(new ApiResponse('OTP sent successfully', null, req.url, 200));
 }
-
-export { login, logout, register, verifyUser, sendOtp };
+export { login, register, verifyUser, sendOtp };
