@@ -9,13 +9,16 @@ export default async function authmiddleware(req: Request, res: Response, next: 
      if (!cookie) {
           next(new ApiError(401, 'Unauthorzed access, please login first'));
      }
-     const decoded_token = decodeAuthToken(cookie);
+     if(process.env.NODE_ENV === 'development'){
+          console.log(cookie);
+     }
+     const decoded_token = await decodeAuthToken(cookie);
      //check if it's a registered User;
      const user = await prisma.user.findUnique({
           where: {
                id: Number((decoded_token as JwtPayload)._id)
           }
      });
-     req.body.user = user; //sending the user info forward in order to reduce the db call again in the api.
+     req.body = user; //sending the user info forward in order to reduce the db call again in the api.
      next();
 }
