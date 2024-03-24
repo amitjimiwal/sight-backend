@@ -11,7 +11,7 @@ subscriptionRouter.get('/', asyncHandler((req, res) => {
      res.send(new ApiResponse("Subscription service working", null, req.url, 200));
 }));
 
-subscriptionRouter.post('/subscribe', authmiddleware, asyncHandler(createSubscription));
+subscriptionRouter.post('/subscribe', asyncHandler(authmiddleware), asyncHandler(createSubscription));
 
 
 export { subscriptionRouter };

@@ -7,6 +7,7 @@ import { errorHandler } from "./utils/errorhandler.js";
 import { ApiResponse } from "./utils/ApiResponse.js";
 import authmiddleware from "./middlewares/auth.middleware.js";
 import { subscriptionRouter } from "./routes/subscription.route.js";
+import { asyncHandler } from "./utils/apihandler.js";
 const app: Express = express();
 app.use(
   cors({
@@ -22,12 +23,12 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/pro", subscriptionRouter);
 
-app.get("/", authmiddleware, (req: Request, res: Response) => {
+app.get("/", asyncHandler(authmiddleware), (req: Request, res: Response) => {
   res.json(new ApiResponse("Backend service working properly!", ["testing data sent"], req.url));
 });
 
 //handling unhandled routes
-app.all("*", authmiddleware,(req, res, next) => {
+app.all("*", asyncHandler(authmiddleware), (req, res, next) => {
   res.json(new ApiResponse(`Can't find ${req.method} Request  ${req.originalUrl}  on this server!`, null, req.url, 404));
 });
 

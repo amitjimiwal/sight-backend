@@ -13,5 +13,5 @@ authRouter.route("/").get(asyncHandler((req, res, next) => {
 authRouter.route("/register").post(asyncHandler(register));
 authRouter.route("/login").post(asyncHandler(login));
 authRouter.route("/logout").get(asyncHandler(authmiddleware), asyncHandler(logout));
-authRouter.route("/verify/:otp/:email").get(asyncHandler(verifyUser));
-authRouter.route("/resendotp/:email").get(asyncHandler(sendOtp));
+authRouter.route("/verify/:otp/:email").patch(asyncHandler(authmiddleware), asyncHandler(verifyUser));
+authRouter.route("/resendotp/:email").patch(asyncHandler(sendOtp));
