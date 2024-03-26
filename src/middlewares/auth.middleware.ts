@@ -19,6 +19,6 @@ export default async function authmiddleware(req: Request, res: Response, next: 
           }
      });
      if(!user?.isEmailVerified) throw new ApiError(401, 'Please verify your email first and then login');
-     req.body = user; //sending the user info forward in order to reduce the db call again in the api.
+     req.body.user = user; //sending the user info forward in order to reduce the db call again in the api.
      next();
 }

@@ -8,6 +8,7 @@ import { ApiResponse } from "./utils/ApiResponse.js";
 import authmiddleware from "./middlewares/auth.middleware.js";
 import { subscriptionRouter } from "./routes/subscription.route.js";
 import { asyncHandler } from "./utils/apihandler.js";
+import { resultRouter } from "./routes/results.route.js";
 const app: Express = express();
 app.use(
   cors({
@@ -22,6 +23,7 @@ app.use(express.static("public"));
 app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/pro", subscriptionRouter);
+app.use("/api/v1/result", resultRouter);
 
 app.get("/", asyncHandler(authmiddleware), (req: Request, res: Response) => {
   res.json(new ApiResponse("Backend service working properly!", ["testing data sent"], req.url));
