@@ -11,7 +11,7 @@ function errorHandler(
 ) {
      //handling logs in development mode only
      if (process.env.NODE_ENV === 'development' && err.message) {
-          console.table(Object.entries(err).map(([key, value]) => `${key}: ${value}`));
+          console.log(err);
      }else if(process.env.NODE_ENV === 'development' && !err.message){
           console.log(err);
      }
