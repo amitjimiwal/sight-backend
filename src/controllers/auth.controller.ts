@@ -26,7 +26,7 @@ async function login(req: Request<{}, {
           return;
      }
      if (!userdata?.isEmailVerified) {
-          next(new ApiError(400, "User is not verified"));
+          next(new ApiError(401, "User is not verified"));
           return;
      }
      const ispasswordmatch = await comparepassword(
