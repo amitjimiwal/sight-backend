@@ -52,6 +52,7 @@ async function register(req: Request<{}, createuserdto>, res: Response, next: Ne
      });
      if (user) {
           next(new ApiError(400, 'User already exists, please login or use another email address'));
+          return;
      }
      //generate a otp and a otp expiry time
      const otp = Math.floor(Math.random() * 900000) + 100000;
@@ -77,17 +78,17 @@ async function register(req: Request<{}, createuserdto>, res: Response, next: Ne
                Result: true
           }
      });
-     await sendMail({
+     sendMail({
           name,
           email,
-          subject: "Welcome to the Auth Service",
+          subject: "Welcome to TypeSight",
           type: 'welcome',
           otp: otp.toString(),
      })
-     res.cookie("auth_token", generateAuthToken(newUser.id), {
-          httpOnly: true,
-     })
-     return res.json(new ApiResponse("Your account is created. Check your Email for otp and verify Yourself", newUser, req.url, 201));
+     // res.cookie("auth_token", generateAuthToken(newUser.id), {
+     //      httpOnly: true,
+     // })
+     return res.json(new ApiResponse("Acoount Created Successfully. Please Login and verify", null, req.url, 201));
 }
 async function verifyUser(req: Request<{
      email: string,
