@@ -3,6 +3,7 @@ import { ApiError } from "../utils/Apierror.js";
 import { decodeAuthToken } from "../utils/functions/generateToken.js";
 import prisma from "../db/dbconfig.js";
 import { JwtPayload } from "jsonwebtoken";
+import { ApiResponse } from "../utils/ApiResponse.js";
 export default async function authmiddleware(req: Request, res: Response, next: NextFunction) {
      const cookie = req.cookies['auth_token'];
      if (!cookie) {
@@ -18,7 +19,10 @@ export default async function authmiddleware(req: Request, res: Response, next: 
                id: Number((decoded_token as JwtPayload)._id)
           }
      });
-     if(!user?.isEmailVerified) throw new ApiError(401, 'Please verify your email first and then login');
+     if(!user){
+          throw new ApiError(401,"Could'nt find an account, Please Register");
+     }
+     if(!user?.isEmailVerified) return res.json(new ApiResponse("You're not Verified Please verify yourself",user,req.url,403))
      req.body.user = user; //sending the user info forward in order to reduce the db call again in the api.
      next();
 }
