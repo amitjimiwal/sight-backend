@@ -6,8 +6,10 @@ const config = {
   jwtSecret: String(process.env.JWT_SECRET),
   hostEmail: String(process.env.HOST_EMAIL),
   hostPassword: String(process.env.HOST_EMAIL_PASSWORD),
-  razorPayKey: String(process.env.RAZORPAY_API_KEY),
-  razorPaySecret: String(process.env.RAZORPAY_API_SECRET),
-  planId: String(process.env.PRO_PLAN_ID),
+  stripeApiKey: String(process.env.STRIPE_API_KEY),
+  stripeSecret: String(process.env.STRIPE_SECRET),
+  frontendUrl: String(process.env.FRONTEND_URL),
+  stripePriceId: String(process.env.STRIPE_PRICE_ID),
+  stripeWebhookSecret:String(process.env.STRIPE_WEBHOOK_SECRET)
 };
 export default config;

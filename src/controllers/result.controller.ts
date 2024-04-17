@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "../db/dbconfig.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../lib/ApiResponse.js";
 import exp from "constants";
 import { addResultDto } from "../dto/add-result.dto.js";
-import { ApiError } from "../utils/Apierror.js";
+import { ApiError } from "../lib/Apierror.js";
 
 async function addResult(req: Request, res: Response, next: NextFunction) {
      await addResultDto.parseAsync(req.body);
@@ -35,10 +35,10 @@ async function getResults(req: Request<{
                userID: Number(id),
           }
      });
-     if(results.length === 0){
+     if (results.length === 0) {
           throw new ApiError(404, "No results found corresponding to Logged in User");
      }
      res.statusCode = 200;
      res.send(new ApiResponse("Results fetched successfully", results, req.url, 200));
 }
-export { addResult,getResults };
+export { addResult, getResults };

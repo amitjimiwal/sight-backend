@@ -16,7 +16,7 @@
   "author": "electroo096",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.11.0",
+    "@prisma/client": "^5.12.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.13",
     "razorpay": "^2.9.2",
+    "stripe": "^15.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -38,7 +39,7 @@
     "husky": "^9.0.11",
     "nodemon": "^3.1.0",
     "prettier": "3.2.5",
-    "prisma": "^5.11.0",
+    "prisma": "^5.12.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   }

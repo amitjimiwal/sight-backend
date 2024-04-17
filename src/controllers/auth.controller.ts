@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { ApiError } from "../utils/Apierror.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../lib/Apierror.js";
+import { ApiResponse } from "../lib/ApiResponse.js";
 import { CreateUserDto, createuserdto } from "../dto/create-user.dto.js";
 import {
   comparepassword,
   generatehasspassword,
-} from "../utils/functions/hashing.js";
+} from "../lib/functions/hashing.js";
 import prisma from "../db/dbconfig.js";
-import { generateAuthToken } from "../utils/functions/generateToken.js";
+import { generateAuthToken } from "../lib/functions/generateToken.js";
 import { loginUser } from "../dto/login-user.dto.js";
-import { sendMail } from "../utils/functions/sendmaill.js";
+import { sendMail } from "../lib/functions/sendmaill.js";
 async function login(
   req: Request<
     {},

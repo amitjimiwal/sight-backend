@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/apihandler.js";
+import { ApiResponse } from "../lib/ApiResponse.js";
+import { asyncHandler } from "../lib/apihandler.js";
 import authmiddleware from "../middlewares/auth.middleware.js";
 import { createSubscription } from "../controllers/subscription.controller.js";
 import { addResult, getResults } from "../controllers/result.controller.js";

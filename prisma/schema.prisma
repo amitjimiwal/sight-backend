@@ -14,15 +14,16 @@ datasource db {
 }
 
 model User {
-  id              Int            @id @default(autoincrement())
-  createdAt       DateTime       @default(now())
-  email           String         @unique
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now())
+  email           String       @unique
   name            String
+  limit           Int          @default(1)
   password        String
-  isEmailVerified Boolean        @default(false)
-  isProUser       Boolean        @default(false)
-  Otp             Otp?  
-  Subscription    Subscription[]
+  isEmailVerified Boolean      @default(false)
+  Otp             Otp?
+  Subscription    Subscription?
   Result          Result[]
 }
 
@@ -35,13 +36,13 @@ model Otp {
 }
 
 model Subscription {
-  id        Int              @id @default(autoincrement())
-  plan      SubscriptionType @default(NORMAL)
-  startDate DateTime         @default(now())
-  endDate   DateTime
-  isActive  Boolean          @default(true)
-  user      User             @relation(fields: [userId], references: [id])
-  userId    Int              @unique
+  id                     Int              @id @default(autoincrement())
+  stripeCustomerId       String?          @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?          @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?          @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime?        @map(name: "stripe_current_period_end")
+  user                   User             @relation(fields: [userId], references: [id])
+  userId                 Int              @unique
 }
 
 model Result {
@@ -55,7 +56,3 @@ model Result {
   // Define a relation to the User model
 }
 
-enum SubscriptionType {
-  NORMAL
-  PRO
-}

@@ -1,9 +1,9 @@
 //generate a new route file
 import { Router } from "express";
-import { asyncHandler } from "../utils/apihandler.js";
-import { ApiError } from "../utils/Apierror.js";
+import { asyncHandler } from "../lib/apihandler.js";
+import { ApiError } from "../lib/Apierror.js";
 import { login, logout, register, sendOtp, verifyUser } from "../controllers/auth.controller.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../lib/ApiResponse.js";
 import authmiddleware from "../middlewares/auth.middleware.js";
 import { userInfo } from "os";
 export const authRouter = Router();
