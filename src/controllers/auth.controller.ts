@@ -29,7 +29,7 @@ async function login(
   const userdata = await prisma.user.findUnique({
     where: {
       email,
-    },
+    }
   });
   if (!userdata) {
     next(new ApiError(400, "User does not exist"));
@@ -47,8 +47,10 @@ async function login(
   if (!userdata?.isEmailVerified) {
     return res.json(new ApiResponse("Login Successful,Verify Yourself", userdata, req.url, 403));
   }
+  const user = Object.create(userdata);
+  delete user.password;
   return res.json(
-    new ApiResponse("Successfully User logged in", userdata, req.url, 200)
+    new ApiResponse("Successfully User logged in", user, req.url, 200)
   );
 }
 async function register(
@@ -94,7 +96,7 @@ async function register(
     include: {
       Subscription: true,
       Result: true,
-    },
+    }
   });
   sendMail({
     name,

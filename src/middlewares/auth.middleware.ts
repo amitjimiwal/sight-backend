@@ -17,6 +17,16 @@ export default async function authmiddleware(req: Request, res: Response, next: 
      const user = await prisma.user.findUnique({
           where: {
                id: Number((decoded_token as JwtPayload)._id)
+          },
+          select: {
+               id:true,
+               name:true,
+               email:true,
+               password: false,
+               isEmailVerified:true,
+               createdAt:true,
+               updatedAt:true,
+               limit:true,
           }
      });
      if (!user) {

@@ -4,6 +4,7 @@ import config from "../config/config.js";
 import Stripe from "stripe";
 import prisma from "../db/dbconfig.js";
 import { getAbsolutePath } from "../lib/functions/pathHelper.js";
+import { ApiError } from "../lib/Apierror.js";
 const stripe = new Stripe(config.stripeApiKey, {
      typescript: true
 });
@@ -57,8 +58,8 @@ async function getsubscription(req: Request, res: Response, next: NextFunction) 
           }
      })
      if (!userSubscription) {
-          return res.json(new ApiResponse("No Subscription found", null, req.url, 404));
+          throw new ApiError(404, "No Subscription found")
      }
-     return res.json(new ApiResponse("Subscription found", userSubscription, req.url, 200));
+     return res.json(new ApiResponse("Found Subscription", userSubscription, req.url, 200));
 }
-export { createSubscription ,getsubscription};
+export { createSubscription, getsubscription };
