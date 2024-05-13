@@ -5,7 +5,7 @@ import Stripe from "stripe";
 import prisma from "../db/dbconfig.js";
 import { getAbsolutePath } from "../lib/functions/pathHelper.js";
 import { ApiError } from "../lib/Apierror.js";
-const stripe = new Stripe(config.stripeApiKey, {
+const stripe = new Stripe(config.stripeSecret, {
      typescript: true
 });
 async function createSubscription(req: Request, res: Response, next: NextFunction) {
@@ -27,12 +27,12 @@ async function createSubscription(req: Request, res: Response, next: NextFunctio
                return_url: stripeBillingsession.url
           }, req.url, 200));
      }
+     console.log("Creating new subscription");
      //if user does'nt have any subscription checkout new session and create customer
      const stripecheckoutsession = await stripe.checkout.sessions.create({
-          success_url: `${config.frontendUrl}/pricing?sucess=true`,
-          return_url: `${config.frontendUrl}`,
+          success_url: `${config.frontendUrl}/pricing?success=true`,
           cancel_url: `${config.frontendUrl}/pricing?success=false`,
-          payment_method_types: ["card", "paypal"],
+          payment_method_types: ["card"],
           mode: "subscription",
           customer_email: user.email,
           billing_address_collection: "auto",

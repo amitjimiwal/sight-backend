@@ -1,7 +1,9 @@
 
 import Stripe from 'stripe';
 import config from '../config/config.js';
-const stripe = new Stripe(config.stripeApiKey, {
+//how to use stripe secret key
+
+const stripe = new Stripe(config.stripeSecret,{
      typescript: true
 });
 export default stripe;
