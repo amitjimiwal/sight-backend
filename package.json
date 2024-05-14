@@ -10,7 +10,9 @@
     "dev": "nodemon ./src/server.ts",
     "format": "prettier --write \"src/**/*.ts\" ",
     "prepare": "husky",
-    "migrate": "npx prisma migrate dev --name"
+    "migrate": "npx prisma migrate dev --name",
+    "stripe:listen": "stripe listen --forward-to localhost:5555/api/v1/webhook",
+    "stripe:trigger-payment": "stripe trigger payment_intent.succeeded"
   },
   "keywords": [],
   "author": "electroo096",

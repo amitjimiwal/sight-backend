@@ -27,15 +27,15 @@ async function createSubscription(req: Request, res: Response, next: NextFunctio
                return_url: stripeBillingsession.url
           }, req.url, 200));
      }
-     console.log("Creating new subscription");
      //if user does'nt have any subscription checkout new session and create customer
      const stripecheckoutsession = await stripe.checkout.sessions.create({
           success_url: `${config.frontendUrl}/pricing?success=true`,
           cancel_url: `${config.frontendUrl}/pricing?success=false`,
+          currency:"inr",
           payment_method_types: ["card"],
           mode: "subscription",
           customer_email: user.email,
-          billing_address_collection: "auto",
+          billing_address_collection: "required",
           line_items: [
                {
                     price: config.stripePriceId,

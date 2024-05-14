@@ -17,15 +17,14 @@ app.use(
     credentials: true,
   })
 );
-
+app.post("/api/v1/webhook",express.raw({ type: 'application/json' }), asyncHandler(stripeWebhook));
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/pro", subscriptionRouter);
-app.use("/api/v1/result", resultRouter);
-app.post("/api/v1/webhook", asyncHandler(stripeWebhook)); //for stripe webhooks
+app.use("/api/v1/result", resultRouter); //for stripe webhooks
 app.get("/", asyncHandler(authmiddleware), (req: Request, res: Response) => {
   res.json(new ApiResponse("Backend service working properly!", ["testing data sent"], req.url));
 });
