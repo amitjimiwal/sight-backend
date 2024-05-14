@@ -18,13 +18,13 @@ async function createSubscription(req: Request, res: Response, next: NextFunctio
      })
      //if user has subscription and then go forward to billing portal
      if (userSubscription && userSubscription.stripeCustomerId) {
-          let returnurl = getAbsolutePath("pricing");
+          let returnurl = getAbsolutePath("pricing?redirect=billingportal");
           const stripeBillingsession = await stripe.billingPortal.sessions.create({
                customer: userSubscription.stripeCustomerId,
                return_url: returnurl
           })
           return res.json(new ApiResponse("Checking out to billing Portal", {
-               return_url: stripeBillingsession.url
+               redirect_url: stripeBillingsession.url
           }, req.url, 200));
      }
      //if user does'nt have any subscription checkout new session and create customer

@@ -21,7 +21,7 @@ async function stripeWebhook(req: Request, res: Response) {
                if (!session?.metadata?.userId) {
                     throw new ApiError(401, "User Id not found in metadata");
                }
-               const subscription = await stripe.subscriptions.retrieve(session.id) as Stripe.Subscription;
+               const subscription = await stripe.subscriptions.retrieve(session.subscription as string) as Stripe.Subscription;
                await prisma.subscription.create({
                     data: {
                          userId: Number(session.metadata.userId),
