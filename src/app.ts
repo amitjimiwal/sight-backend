@@ -34,5 +34,9 @@ app.all("*", asyncHandler(authmiddleware), (req, res, next) => {
   res.json(new ApiResponse(`Can't find ${req.method} Request  ${req.originalUrl}  on this server!`, null, req.url, 404));
 });
 
+//for render 
+app.get("/ping", (req: Request, res: Response) => {
+  res.send("Server is running");
+});
 app.use(errorHandler);
 export default app;
