@@ -28,7 +28,8 @@
     "nodemailer": "^6.9.13",
     "razorpay": "^2.9.2",
     "stripe": "^15.2.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "husky": "^9.0.11"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -38,10 +39,9 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.11.28",
     "@types/nodemailer": "^6.4.14",
-    "husky": "^9.0.11",
     "nodemon": "^3.1.0",
     "prettier": "3.2.5",
-    "prisma": "^5.13.0",
+    "prisma": "^5.14.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   }
