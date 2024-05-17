@@ -28,15 +28,14 @@ app.use("/api/v1/result", resultRouter); //for stripe webhooks
 app.get("/", asyncHandler(authmiddleware), (req: Request, res: Response) => {
   res.json(new ApiResponse("Backend service working properly!", ["testing data sent"], req.url));
 });
-
+//for render 
+app.get("/ping", (req: Request, res: Response) => {
+  res.send("Server is running");
+});
 //handling unhandled routes
 app.all("*", asyncHandler(authmiddleware), (req, res, next) => {
   res.json(new ApiResponse(`Can't find ${req.method} Request  ${req.originalUrl}  on this server!`, null, req.url, 404));
 });
 
-//for render 
-app.get("/ping", (req: Request, res: Response) => {
-  res.send("Server is running");
-});
 app.use(errorHandler);
 export default app;

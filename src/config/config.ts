@@ -10,6 +10,7 @@ const config = {
   stripeSecret: String(process.env.STRIPE_SECRET),
   frontendUrl: String(process.env.FRONTEND_URL),
   stripePriceId: String(process.env.STRIPE_PRICE_ID),
-  stripeWebhookSecret:String(process.env.STRIPE_WEBHOOK_SECRET)
+  stripeWebhookSecret:String(process.env.STRIPE_WEBHOOK_SECRET),
+  cookieDomain: String(process.env.COOKIE_DOMAIN)
 };
 export default config;
