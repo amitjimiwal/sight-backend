@@ -10,6 +10,7 @@ import prisma from "../db/dbconfig.js";
 import { generateAuthToken } from "../lib/functions/generateToken.js";
 import { loginUser } from "../dto/login-user.dto.js";
 import { sendMail } from "../lib/functions/sendmaill.js";
+import config from "../config/config.js";
 async function login(
   req: Request<
     {},
@@ -41,9 +42,7 @@ async function login(
     return;
   }
   const token = await generateAuthToken(userdata.id);
-  res.cookie("auth_token", token, {
-    httpOnly: true,
-  });
+  res.cookie("auth_token", token, { domain: config.frontendUrl, path: '/', httpOnly: true, maxAge: 6 * 60 * 60 * 1000 });
   if (!userdata?.isEmailVerified) {
     return res.json(new ApiResponse("Login Successful,Verify Yourself", userdata, req.url, 403));
   }
