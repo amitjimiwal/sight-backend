@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, CookieOptions } from "express";
 import { ApiError } from "../lib/Apierror.js";
 import { ApiResponse } from "../lib/ApiResponse.js";
 import { CreateUserDto, createuserdto } from "../dto/create-user.dto.js";
@@ -11,6 +11,7 @@ import { generateAuthToken } from "../lib/functions/generateToken.js";
 import { loginUser } from "../dto/login-user.dto.js";
 import { sendMail } from "../lib/functions/sendmaill.js";
 import config from "../config/config.js";
+const cookieOptions: CookieOptions = { domain: config.cookieDomain, path: '/', httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), sameSite: "none", secure: true }
 async function login(
   req: Request<
     {},
@@ -42,7 +43,7 @@ async function login(
     return;
   }
   const token = await generateAuthToken(userdata.id);
-  res.cookie("auth_token", token, { domain: config.cookieDomain, path: '/', httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), sameSite: "none", secure: true });
+  res.cookie("auth_token", token, cookieOptions);
   if (!userdata?.isEmailVerified) {
     return res.json(new ApiResponse("Login Successful,Verify Yourself", userdata, req.url, 403));
   }
@@ -229,7 +230,7 @@ async function logout(req: Request, res: Response, next: NextFunction) {
   if (!cookie) {
     next(new ApiError(400, "User is not logged in"));
   }
-  res.clearCookie("auth_token");
+  res.clearCookie("auth_token", { domain: config.cookieDomain, path: '/' });
   return res.json(
     new ApiResponse("User Logged out successfully", null, req.url, 200)
   );
