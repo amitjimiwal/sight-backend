@@ -42,7 +42,7 @@ async function login(
     return;
   }
   const token = await generateAuthToken(userdata.id);
-  res.cookie("auth_token", token, { domain: config.cookieDomain, path: '/', httpOnly: true, maxAge: 6 * 60 * 60 * 1000 });
+  res.cookie("auth_token", token, { domain: config.cookieDomain, path: '/', httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), sameSite: "none", secure: true });
   if (!userdata?.isEmailVerified) {
     return res.json(new ApiResponse("Login Successful,Verify Yourself", userdata, req.url, 403));
   }
