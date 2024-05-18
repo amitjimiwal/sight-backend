@@ -230,7 +230,7 @@ async function logout(req: Request, res: Response, next: NextFunction) {
   if (!cookie) {
     next(new ApiError(400, "User is not logged in"));
   }
-  res.clearCookie("auth_token", { domain: config.cookieDomain, path: '/' });
+  res.clearCookie("auth_token", { domain: config.cookieDomain, path: '/', sameSite: "none", secure: true, httpOnly: true });
   return res.json(
     new ApiResponse("User Logged out successfully", null, req.url, 200)
   );

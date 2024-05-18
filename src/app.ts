@@ -11,6 +11,7 @@ import { asyncHandler } from "./lib/apihandler.js";
 import { resultRouter } from "./routes/results.route.js";
 import { stripeWebhook } from "./webhooks/stripewebhook.js";
 const app: Express = express();
+app.disable("x-powered-by");
 app.use(
   cors({
     origin: config.corsOrigin,
