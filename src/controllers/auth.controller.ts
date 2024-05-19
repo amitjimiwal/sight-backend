@@ -42,13 +42,12 @@ async function login(
     next(new ApiError(400, "Entered Password is incorrect"));
     return;
   }
+  const { password: pass, ...user } = userdata;
   const token = await generateAuthToken(userdata.id);
   res.cookie("auth_token", token, cookieOptions);
   if (!userdata?.isEmailVerified) {
-    return res.json(new ApiResponse("Login Successful,Verify Yourself", userdata, req.url, 403));
+    return res.json(new ApiResponse("Login Successful,Verify Yourself", user, req.url, 403));
   }
-  const user = Object.create(userdata);
-  delete user.password;
   return res.json(
     new ApiResponse("Successfully User logged in", user, req.url, 200)
   );
