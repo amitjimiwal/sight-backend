@@ -12,6 +12,10 @@ import { loginUser } from "../dto/login-user.dto.js";
 import { sendMail } from "../lib/functions/sendmaill.js";
 import config from "../config/config.js";
 const cookieOptions: CookieOptions = { domain: config.cookieDomain, path: '/', httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), sameSite: "none", secure: true }
+const localCookieOptions={
+  httponly:true,
+  secure:false,
+}
 async function login(
   req: Request<
     {},
@@ -80,7 +84,7 @@ async function register(
   //hashing the password
   const hasspassword = await generatehasspassword(password);
   //create a user
-  const newUser = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: email,
       name: name,
@@ -104,9 +108,7 @@ async function register(
     type: "welcome",
     otp: otp.toString(),
   });
-  // res.cookie("auth_token", generateAuthToken(newUser.id), {
-  //      httpOnly: true,
-  // })
+
   return res.json(
     new ApiResponse(
       "Acoount Created Successfully. Please Login and verify",
@@ -169,8 +171,9 @@ async function verifyUser(
       isEmailVerified: true,
     },
   });
+  const { password: pass, ...data } = updatedData;
   return res.json(
-    new ApiResponse("User Verified Successfully", updatedData, req.url, 200)
+    new ApiResponse("User Verified Successfully", data, req.url, 200)
   );
 }
 
