@@ -11,10 +11,11 @@ import { generateAuthToken } from "../lib/functions/generateToken.js";
 import { loginUser } from "../dto/login-user.dto.js";
 import { sendMail } from "../lib/functions/sendmaill.js";
 import config from "../config/config.js";
+import validateEmail from "../lib/functions/validateEmail.js";
 const cookieOptions: CookieOptions = { domain: config.cookieDomain, path: '/', httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), sameSite: "none", secure: true }
-const localCookieOptions={
-  httponly:true,
-  secure:false,
+const localCookieOptions = {
+  httponly: true,
+  secure: false,
 }
 async function login(
   req: Request<
@@ -63,6 +64,11 @@ async function register(
 ) {
   await CreateUserDto.parseAsync(req.body);
   const { email, name, password } = req.body;
+  const valid = await validateEmail(email);
+  if (!valid) {
+    next(new ApiError(400, "Invalid Email Address"));
+    return;
+  }
   const user = await prisma.user.findUnique({
     where: {
       email,

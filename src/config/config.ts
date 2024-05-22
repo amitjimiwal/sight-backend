@@ -11,6 +11,7 @@ const config = {
   frontendUrl: String(process.env.FRONTEND_URL),
   stripePriceId: String(process.env.STRIPE_PRICE_ID),
   stripeWebhookSecret:String(process.env.STRIPE_WEBHOOK_SECRET),
-  cookieDomain: String(process.env.COOKIE_DOMAIN)
+  cookieDomain: String(process.env.COOKIE_DOMAIN),
+  zeroBounceApiKey: String(process.env.ZERO_BOUNCE_API_KEY),
 };
 export default config;
