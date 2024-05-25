@@ -4,13 +4,12 @@ import config from "../config/config.js";
 import { ApiError } from "../lib/Apierror.js";
 import prisma from "../db/dbconfig.js";
 import { ApiResponse } from "../lib/ApiResponse.js";
-import { Response ,Request} from "express";
+import { Response, Request } from "express";
 async function stripeWebhook(req: Request, res: Response) {
-     const body = req.body;
-     const signature = req.headers['stripe-signature'] as string;
      let event: Stripe.Event;
+     const signature = req.headers['stripe-signature'] || ""; 
      event = stripe.webhooks.constructEvent(
-          body,
+          req.body,
           signature,
           config.stripeWebhookSecret
      );
