@@ -257,5 +257,27 @@ async function logout(req: Request, res: Response, next: NextFunction) {
     new ApiResponse("User Logged out successfully", null, req.url, 200)
   );
 }
-export { login, register, verifyUser, sendOtp, logout };
+async function resendVerification(req:Request<{
+  email:string
+}>,res:Response,next:NextFunction) {
+  const email=req.params.email;
+  if(!email) throw new ApiError(400,"Email is Required");
+  const userWithEmailExist=await prisma.user.findUnique({
+    where:{
+      email
+    }
+  })
+  if(!userWithEmailExist) throw new ApiError(404,"No account exists for this email");
+  const token = generateEmailVerificationToken(email);
+  const name=userWithEmailExist.name;
+  const magicUrl = `${config.frontendUrl}/verify?email=${email}&redirect=${token}`;
+  Promise.all([sendMail({
+    name,
+    email,
+    subject: "Verification Link",
+    type: "verify",
+    magicUrl
+  })])
+}
+export { login, register, verifyUser, sendOtp, logout ,resendVerification};
 
