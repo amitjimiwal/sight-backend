@@ -3,17 +3,19 @@ import nodemailer from 'nodemailer';
 import { welcomeTemplate } from "../mailtemplates/welcome.js";
 import resendOtp from "../mailtemplates/resendotp.js";
 import emailVerification from "../mailtemplates/emailverification.js";
+import verifyYourself from "../mailtemplates/verification.js";
 
-type EmailType = 'welcome' | 'reset' | 'verify' ;
+type EmailType = 'welcome' | 'reset' | 'verify' | 'verifySuccess';
 interface MailProps{
      name:string;
      email:string;
      subject:string;
      type:EmailType;
      otp?:string;
+     magicUrl?:string
 }
 
-export async function sendMail({ name, email, subject, type, otp }:MailProps) {
+export async function sendMail({ name, email, subject, type, otp ,magicUrl}:MailProps) {
      try {
           const transporter = nodemailer.createTransport({
                service: 'gmail',
@@ -31,8 +33,10 @@ export async function sendMail({ name, email, subject, type, otp }:MailProps) {
                          return welcomeTemplate({name,otp});
                     case 'reset':
                          return resendOtp({name,otp});
-                    case 'verify':
+                    case 'verifySuccess':
                          return emailVerification({name});
+                    case 'verify':
+                         return verifyYourself({name,magicUrl});
                     default:
                          throw new Error("Invalid mailing template used");
                }

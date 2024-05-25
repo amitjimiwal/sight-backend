@@ -13,7 +13,6 @@
     "allowSyntheticDefaultImports": true, //Allow 'import x from y' when a module doesn't have a default export.
     "moduleResolution": "NodeNext",
     "esModuleInterop": true, //Allow default imports from modules with no default export
-    "allowJs": true
   },
   "include": ["src", "prisma"], //the files to include in typescript
   "exclude": ["node_modules", "dist"], //the files to exclude from typescript

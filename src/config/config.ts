@@ -13,5 +13,6 @@ const config = {
   stripeWebhookSecret:String(process.env.STRIPE_WEBHOOK_SECRET),
   cookieDomain: String(process.env.COOKIE_DOMAIN),
   zeroBounceApiKey: String(process.env.ZERO_BOUNCE_API_KEY),
+  emailVerificationSecret:String(process.env.EMAIL_VERIFICATION_SECRET)
 };
 export default config;

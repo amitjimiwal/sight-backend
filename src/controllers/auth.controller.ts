@@ -7,11 +7,11 @@ import {
   generatehasspassword,
 } from "../lib/functions/hashing.js";
 import prisma from "../db/dbconfig.js";
-import { generateAuthToken } from "../lib/functions/generateToken.js";
+import { decodeEmailVerificationToken, generateAuthToken, generateEmailVerificationToken } from "../lib/functions/generateToken.js";
 import { loginUser } from "../dto/login-user.dto.js";
-import { sendMail } from "../lib/functions/sendmaill.js";
+import { sendMail } from "../lib/functions/sendmail.js";
 import config from "../config/config.js";
-import validateEmail from "../lib/functions/validateEmail.js";
+import { verify } from "crypto";
 const cookieOptions: CookieOptions = { domain: config.cookieDomain, path: '/', httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), sameSite: "none", secure: true }
 const localCookieOptions = {
   httponly: true,
@@ -64,11 +64,11 @@ async function register(
 ) {
   await CreateUserDto.parseAsync(req.body);
   const { email, name, password } = req.body;
-  const valid = await validateEmail(email);
-  if (!valid) {
-    next(new ApiError(400, "Invalid Email Address"));
-    return;
-  }
+  // const valid = await validateEmail(email);
+  // if (!valid) {
+  //   next(new ApiError(400, "Invalid Email Address"));
+  //   return;
+  // }
   const user = await prisma.user.findUnique({
     where: {
       email,
@@ -107,17 +107,25 @@ async function register(
       Result: true,
     }
   });
-  sendMail({
+  const token = generateEmailVerificationToken(email);
+  const magicUrl = `${config.frontendUrl}/verify?email=${email}&redirect=${token}`;
+  Promise.all([sendMail({
     name,
     email,
     subject: "Welcome to TypeSight",
     type: "welcome",
     otp: otp.toString(),
-  });
+  }), sendMail({
+    name,
+    email,
+    subject: "Verification Link",
+    type: "verify",
+    magicUrl
+  })])
 
   return res.json(
     new ApiResponse(
-      "Acoount Created Successfully. Please Login and verify",
+      "Account verification link sent to your registered email",
       null,
       req.url,
       201
@@ -153,9 +161,15 @@ async function verifyUser(
     throw new Error("There is no account associated with this Email");
   }
   if (user.isEmailVerified) {
-    throw new Error(
+    throw new ApiError(409,
       "User is already verified,Please continue to proceed with your account"
     );
+  }
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token || email !== decodeEmailVerificationToken(token).email) {
+    console.log(token);
+    if (token) console.log(decodeEmailVerificationToken(token));
+    throw new ApiError(400, "Token Invalid.Please retry!")
   }
   if (user.Otp?.otp !== parseInt(otp)) {
     throw new Error("OTP is incorrect");
@@ -163,11 +177,11 @@ async function verifyUser(
   if (user.Otp?.otpExpiresAt < new Date()) {
     throw new Error("OTP is Expired,Please resend the OTP");
   }
-  await sendMail({
+  sendMail({
     name: user.name,
     email,
     subject: "Account Verified Successfully",
-    type: "verify",
+    type: "verifySuccess",
   });
   const updatedData = await prisma.user.update({
     where: {
