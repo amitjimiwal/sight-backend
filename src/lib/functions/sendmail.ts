@@ -4,8 +4,9 @@ import { welcomeTemplate } from "../mailtemplates/welcome.js";
 import resendOtp from "../mailtemplates/resendotp.js";
 import emailVerification from "../mailtemplates/emailverification.js";
 import verifyYourself from "../mailtemplates/verification.js";
+import { forgotEmail } from "../mailtemplates/forgotEmail.js";
 
-type EmailType = 'welcome' | 'reset' | 'verify' | 'verifySuccess';
+type EmailType = 'welcome' | 'reset' | 'verify' | 'verifySuccess' | 'resetemail';
 interface MailProps{
      name:string;
      email:string;
@@ -37,6 +38,8 @@ export async function sendMail({ name, email, subject, type, otp ,magicUrl}:Mail
                          return emailVerification({name});
                     case 'verify':
                          return verifyYourself({name,magicUrl});
+                    case 'resetemail':
+                         return forgotEmail(name,magicUrl);
                     default:
                          throw new Error("Invalid mailing template used");
                }

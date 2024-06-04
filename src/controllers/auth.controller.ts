@@ -51,7 +51,7 @@ async function login(
   const token = await generateAuthToken(userdata.id);
   res.cookie("auth_token", token, cookieOptions);
   if (!userdata?.isEmailVerified) {
-    return res.json(new ApiResponse("Login Successful,Verify Yourself", user, req.url, 403));
+    return res.json(new ApiResponse("Login Successful", user, req.url, 403));
   }
   return res.json(
     new ApiResponse("Successfully User logged in", user, req.url, 200)
@@ -168,7 +168,6 @@ async function verifyUser(
   const token = req.headers.authorization?.split(" ")[1];
   if (!token || email !== decodeEmailVerificationToken(token).email) {
     console.log(token);
-    if (token) console.log(decodeEmailVerificationToken(token));
     throw new ApiError(400, "Token Invalid.Please retry!")
   }
   if (user.Otp?.otp !== parseInt(otp)) {
@@ -257,19 +256,19 @@ async function logout(req: Request, res: Response, next: NextFunction) {
     new ApiResponse("User Logged out successfully", null, req.url, 200)
   );
 }
-async function resendVerification(req:Request<{
-  email:string
-}>,res:Response,next:NextFunction) {
-  const email=req.params.email;
-  if(!email) throw new ApiError(400,"Email is Required");
-  const userWithEmailExist=await prisma.user.findUnique({
-    where:{
+async function resendVerification(req: Request<{
+  email: string
+}>, res: Response, next: NextFunction) {
+  const email = req.params.email;
+  if (!email) throw new ApiError(400, "Email is Required");
+  const userWithEmailExist = await prisma.user.findUnique({
+    where: {
       email
     }
   })
-  if(!userWithEmailExist) throw new ApiError(404,"No account exists for this email");
+  if (!userWithEmailExist) throw new ApiError(404, "No account exists for this email");
   const token = generateEmailVerificationToken(email);
-  const name=userWithEmailExist.name;
+  const name = userWithEmailExist.name;
   const magicUrl = `${config.frontendUrl}/verify?email=${email}&redirect=${token}`;
   Promise.all([sendMail({
     name,
@@ -279,5 +278,88 @@ async function resendVerification(req:Request<{
     magicUrl
   })])
 }
-export { login, register, verifyUser, sendOtp, logout ,resendVerification};
+
+async function forgotPassword(req: Request<{
+  email: string
+}>, res: Response, next: NextFunction) {
+  const email = req.params.email;
+  if (!email) throw new ApiError(404, "No email Found");
+  const user = await prisma.user.findUnique({
+    where: {
+      email
+    }
+  });
+  if (!user) throw new ApiError(404, "User doesn't exist");
+  const token = generateEmailVerificationToken(email);
+  const expiresAt = new Date();
+  expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+  const forgotEmail = await prisma.forgotPassword.findUnique({
+    where: {
+      id: user.id
+    }
+  })
+  const magicUrl = `${config.frontendUrl}/reset?email=${email}&token=${token}`;
+  if (!forgotEmail) {
+    await prisma.forgotPassword.create({
+      data: {
+        userID: user.id,
+        email,
+        token,
+        expiresAt
+      }
+    })
+  } else {
+    if (forgotEmail.expiresAt < new Date()) throw new ApiError(400, "One request already in progress, Retry after 5 mins");
+    else {
+      //send new email with token and update expiry
+      await prisma.forgotPassword.update({
+        where: {
+          id: user.id
+        },
+        data: {
+          token,
+          expiresAt
+        }
+      })
+    }
+  }
+  sendMail({ name: user.name, email, subject: "Reset Password Link", type: "resetemail", magicUrl });
+  return res.json(new ApiResponse("Password reset link sent to your email", null, req.url, 200));
+}
+
+async function updatePassword(req: Request<{},{
+  password:string;
+  email:string;
+}>, res: Response, next: NextFunction) {
+  const {email,password}=req.body;
+  if(!email || !password) throw new ApiError(404,"Invalid Payload");
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token || email !== decodeEmailVerificationToken(token).email) {
+    console.log(token);
+    throw new ApiError(400, "Token Invalid.Please retry!")
+  }
+  const forgotEmail=await prisma.forgotPassword.findFirst({
+    where:{
+      email
+    }
+  });
+  if(!forgotEmail) throw new ApiError(400,"You haven't generated a link");
+  if(forgotEmail.expiresAt<new Date()) throw new ApiError(400,"Token Expired, Generate new Url")
+  const hashpasswod=await generatehasspassword(password);
+  await prisma.user.update({
+    where:{
+      email
+    },
+    data:{
+      password:hashpasswod
+    }
+  })
+  await prisma.forgotPassword.deleteMany({
+    where:{
+      email
+    }
+  });
+  return res.json(new ApiResponse("Update the Password successfully, You can Login",null,req.url,201))
+}
+export { login, register, verifyUser, sendOtp, logout, resendVerification ,forgotPassword,updatePassword};
 

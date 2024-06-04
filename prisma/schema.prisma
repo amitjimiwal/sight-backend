@@ -25,6 +25,7 @@ model User {
   Otp             Otp?
   Subscription    Subscription?
   Result          Result[]
+  ForgotPassword  ForgotPassword?
 }
 
 model Otp {
@@ -54,5 +55,14 @@ model Result {
   duration  Int // Duration of the typing test (in seconds)
   createdAt DateTime @default(now())
   // Define a relation to the User model
+}
+
+model ForgotPassword {
+  id        Int      @id @default(autoincrement())
+  email     String
+  user      User     @relation(fields: [userID], references: [id])
+  userID    Int      @unique   
+  token     String
+  expiresAt DateTime
 }
 
