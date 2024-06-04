@@ -1,6 +1,7 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import config from "./config/config.js";
 import cors from "cors";
+import cron from 'node-cron';
 import cookieParser from "cookie-parser";
 import { authRouter } from "./routes/auth.route.js";
 import { errorHandler } from "./lib/errorhandler.js";
@@ -10,6 +11,7 @@ import { subscriptionRouter } from "./routes/subscription.route.js";
 import { asyncHandler } from "./lib/apihandler.js";
 import { resultRouter } from "./routes/results.route.js";
 import { stripeWebhook } from "./webhooks/stripewebhook.js";
+import deleteUnverifiedUsersJob from "./cron/dbjobs.js";
 const app: Express = express();
 app.disable("x-powered-by");
 app.use(
@@ -29,7 +31,11 @@ app.use("/api/v1/result", resultRouter); //for stripe webhooks
 app.get("/", asyncHandler(authmiddleware), (req: Request, res: Response) => {
   res.json(new ApiResponse("Backend service working properly!", ["testing data sent"], req.url));
 });
-//for render 
+//db cron jobs
+cron.schedule('0 0 * * *',deleteUnverifiedUsersJob);
+
+
+//for render ping
 app.get("/ping", (req: Request, res: Response) => {
   res.send("Server is running");
 });

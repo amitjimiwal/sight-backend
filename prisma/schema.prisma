@@ -31,7 +31,7 @@ model User {
 model Otp {
   id     Int  @id @default(autoincrement())
   otp    Int  @unique
-  user   User @relation(fields: [userID], references: [id])
+  user   User @relation(fields: [userID], references: [id],onDelete: Cascade)
   userID Int  @unique
   otpExpiresAt    DateTime     
 }
@@ -48,7 +48,7 @@ model Subscription {
 
 model Result {
   id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userID], references: [id])
+  user      User     @relation(fields: [userID], references: [id],onDelete: Cascade)
   userID    Int      
   score     Int // Typing score achieved by the user
   accuracy  Float // Typing accuracy (percentage)
