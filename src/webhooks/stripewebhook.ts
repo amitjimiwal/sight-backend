@@ -9,7 +9,7 @@ async function stripeWebhook(req: Request, res: Response) {
      let event: Stripe.Event;
      const signature = req.headers['stripe-signature'] || ""; 
      event = stripe.webhooks.constructEvent(
-          JSON.stringify(req.body),
+          req.body,
           signature,
           config.stripeWebhookSecret
      );
