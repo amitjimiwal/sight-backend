@@ -32,7 +32,20 @@ cd sight-backend/
 npm install && npm run dev 
 ```
 
-  
+<h2>Run locally using Docker</h2>
+<p>1. Run Postgress db using `docker-compose.yml`</p>
+
+```
+docker compose up
+```
+<p>2. Create and edit .env file</p>
+<p>3. Build Image from `Dockerfile` and create an image</p>
+
+```
+docker built -t typesightdb .
+docker run -it --rm -p --env-file .env -p 5555:5555 typesightdb
+```
+
 <h2>💻 Built with</h2>
 
 Technologies used in the project:

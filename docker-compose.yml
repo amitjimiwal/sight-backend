@@ -1,0 +1,16 @@
+version: '1'
+services:
+  db:
+    image: postgres
+    volumes:
+      - typesightdb:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - 8000:5432
+    environment:
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_USER: your_user
+      POSTGRES_DB: your_db
+volumes:
+  typesightdb:
+    driver: local
